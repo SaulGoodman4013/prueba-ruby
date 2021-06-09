@@ -2,49 +2,34 @@ require "uri"
 require "net/http"
 require "json"
 
-def request(address)
-    url = URI(address)
-    # URI("https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&page=2&api_key=DZpvfca9ZYKiJ15VAUv1Cker22vtnl9Awa8b4coa")
+key = "FcvswxMv5W64nMKaA5reHuCdCQJYeWqvDbqaeccg"
+url = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=10&api_key="
 
+array = []
+def request(url,key)
+    address = url + key
+    url = URI(address)    
     https = Net::HTTP.new(url.host, url.port)
     https.use_ssl = true
-
     request = Net::HTTP::Get.new(url)
-
     response = https.request(request)
-
-    body = JSON.parse response.read_body
+    JSON.parse response.read_body
 end
 
-body = request('https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&page=2&api_key=DZpvfca9ZYKiJ15VAUv1Cker22vtnl9Awa8b4coa')
+body = request(url,key)
 
-body.each do |photo,id|
-    puts id
-
-    # html += "img src=\"#{img_src}"
-
+    body['photos'].each do |photo|
+    img = photo['img_src']
+    array.push photo['img_src']
 end
 
-
-
-
-# def filter(id) filtar con each
-
-#     new_array = []
-#     array.each do |ele|
-#         if ele
-#         new_array.push(ele)
-#         end
-#     end
-#     print new_array #devolvemos el arreglo nuevo
-# end
-
-
-def buil_web_page
-    pic.each do |img|
-        html = "<html>\n<head>\n</head>\n<body>\n<ul style='list-style-type: none;'>\n"
-        html +="\t<li><img src=\"#{response["img_src"]}\">#{response["id"]}</li>\n"
-        html += "</ul>\n</body>\n</html>"
+def build_web_page(array)
+    html = "<html>\n\t<head>\n\t</head>\n\t<body>\n\t\t<ul>"
+    array.each do |x|
+        html += "\n\t\t\t<li><img src=#{x}></li>"
     end
-        File.write("nasa.html", html)
+    html += "\n\t\t</ul>\n\t</body>\n</html>"
+    File.write('photos.html', html)
 end
+
+build_web_page(array)
